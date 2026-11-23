@@ -41,13 +41,17 @@
 
   // ---- page context (no event key: available to every tag on the page) ----
   var body = document.currentScript && document.currentScript.dataset;
+  var loggedIn = false;
+  try { loggedIn = localStorage.getItem('dc_login') === '1'; } catch (e) {}
   window.dataLayer.push({
+    event: 'page_meta',
     page: {
       page_type: (body && body.pageType) || 'other',
       page_language: 'en',
       site_name: cfg.SITE_NAME,
       site_environment: cfg.ENV,
-      test_scenario: window.DC_SCENARIO || 'none'
+      test_scenario: window.DC_SCENARIO || 'none',
+      login_status: loggedIn ? 'logged_in' : 'logged_out'
     },
     consent_state: stored ? { analytics: !!stored.analytics, marketing: !!stored.marketing } : { analytics: false, marketing: false }
   });
