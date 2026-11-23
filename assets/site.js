@@ -47,10 +47,16 @@
     ecom('add_to_cart', { currency: C.CURRENCY, value: r2(p.price * q), items: [it] });
     toast(p.name + ' added to cart');
   }
+  function addToWishlist(id, listCtx) {
+    var p = byId(id), w = JSON.parse(localStorage.getItem('dc_wishlist') || '[]');
+    if (w.indexOf(id) === -1) { w.push(id); localStorage.setItem('dc_wishlist', JSON.stringify(w)); }
+    ecom('add_to_wishlist', { currency: C.CURRENCY, value: p.price, items: [item(p, listCtx || {})] });
+    toast(p.name + ' saved to wishlist');
+  }
   function renderCount() { var n = getCart().reduce(function (s, l) { return s + l.q; }, 0); $$('.cart-count').forEach(function (e) { e.textContent = n; }); }
 
   // ---------------------------------------------------------------- layout
-  var nav = [['index.html', 'Home'], ['shop.html', 'Shop'], ['about.html', 'About'], ['faq.html', 'FAQ'], ['contact.html', 'Contact']];
+  var nav = [['index.html', 'Home'], ['shop.html', 'Shop'], ['about.html', 'About'], ['faq.html', 'FAQ'], ['contact.html', 'Contact'], ['account.html', 'Account']];
   var header = document.createElement('header');
   header.className = 'site-header';
   header.innerHTML =
@@ -105,7 +111,7 @@
   function card(p, i, listId, listName) {
     return '<article class="card"><a href="product.html?id=' + p.id + '" class="card-link" data-id="' + p.id + '" data-index="' + i + '" data-list-id="' + listId + '" data-list-name="' + listName + '">' +
       '<div class="thumb" style="background:' + p.color + '">' + p.emoji + '</div><h3>' + p.name + '</h3></a>' +
-      '<div class="card-foot"><span class="price">' + money(p.price) + '</span><button class="add" data-id="' + p.id + '" data-index="' + i + '" data-list-id="' + listId + '" data-list-name="' + listName + '">Add</button></div></article>';
+      '<div class="card-foot"><span class="price">' + money(p.price) + '</span><span><button class="ghost wish" title="Save to wishlist" data-id="' + p.id + '" data-index="' + i + '" data-list-id="' + listId + '" data-list-name="' + listName + '">♡</button> <button class="add" data-id="' + p.id + '" data-index="' + i + '" data-list-id="' + listId + '" data-list-name="' + listName + '">Add</button></span></div></article>';
   }
   function renderList(el, products, listId, listName) {
     el.innerHTML = products.map(function (p, i) { return card(p, i, listId, listName); }).join('');
@@ -118,6 +124,11 @@
         ecom('select_item', { item_list_id: ctx.item_list_id, item_list_name: ctx.item_list_name, items: [item(p, ctx)] });
       });
     });
+    $$('.wish', el).forEach(function (b) {
+      b.addEventListener('click', function () {
+        addToWishlist(b.dataset.id, { index: +b.dataset.index, item_list_id: b.dataset.listId, item_list_name: b.dataset.listName });
+      });
+    });
     $$('.add', el).forEach(function (b) {
       b.addEventListener('click', function () {
         addToCart(b.dataset.id, 1, { index: +b.dataset.index, item_list_id: b.dataset.listId, item_list_name: b.dataset.listName });
@@ -128,6 +139,10 @@
   // ---------------------------------------------------------------- pages
   var pages = {
     home: function () {
+      var v = localStorage.getItem('dc_exp_home_hero');
+      if (!v) { v = Math.random() < 0.5 ? 'A' : 'B'; localStorage.setItem('dc_exp_home_hero', v); }
+      if (v === 'B') { $('#hero-title').textContent = 'Purr-fect deals for curious cats.'; }
+      custom('experiment_view', { experiment_id: 'home_hero_2026', variant_id: v });
       renderList($('#featured'), [CAT[0], CAT[3], CAT[6], CAT[7]], 'home_featured', 'Home featured');
       $$('[data-promo]').forEach(function (b) {
         var promo = { promotion_id: b.dataset.promo, promotion_name: b.dataset.promoName, creative_slot: 'home_hero' };
@@ -140,7 +155,23 @@
       var list = cat ? CAT.filter(function (p) { return p.category === cat; }) : CAT;
       $('#list-title').textContent = cat ? cat : 'All products';
       $$('.filters a').forEach(function (a) { if ((a.dataset.cat || '') === (cat || '')) a.classList.add('active'); });
-      renderList($('#products'), list, cat ? 'category_' + cat.toLowerCase() : 'all_products', cat ? 'Category ' + cat : 'All products');
+      var listId = cat ? 'category_' + cat.toLowerCase() : 'all_products', listName = cat ? 'Category ' + cat : 'All products';
+      $$('.filters a').forEach(function (a) {
+        a.addEventListener('click', function () { custom('product_filter', { filter_type: 'category', filter_value: a.dataset.cat || 'all' }); });
+      });
+      function apply(changed) {
+        var sort = $('#sort').value, max = +$('#price-max').value, out = list.slice();
+        if (max) out = out.filter(function (p) { return p.price <= max; });
+        if (sort === 'price_asc') out.sort(function (a, b) { return a.price - b.price; });
+        if (sort === 'price_desc') out.sort(function (a, b) { return b.price - a.price; });
+        if (sort === 'name') out.sort(function (a, b) { return a.name.localeCompare(b.name); });
+        if (changed === 'sort') custom('product_sort', { sort_option: sort });
+        if (changed === 'price') custom('product_filter', { filter_type: 'price_max', filter_value: max ? String(max) : 'any' });
+        renderList($('#products'), out, listId, listName);
+      }
+      $('#sort').onchange = function () { apply('sort'); };
+      $('#price-max').onchange = function () { apply('price'); };
+      apply(null);
     },
     search: function () {
       var q = (new URLSearchParams(location.search).get('q') || '').trim();
@@ -148,16 +179,18 @@
       var res = CAT.filter(function (p) { return (p.name + ' ' + p.category + ' ' + p.category2).toLowerCase().indexOf(q.toLowerCase()) > -1; });
       $('#search-title').textContent = 'Results for "' + q + '" (' + res.length + ')';
       dl.push({ event: 'search', search_term: q, search_results: res.length });
-      if (res.length) renderList($('#products'), res, 'search_results', 'Search results'); else $('#products').innerHTML = '<p>No cat things found. Try "toy" or "food".</p>';
+      if (res.length) renderList($('#products'), res, 'search_results', 'Search results');
+      else { $('#products').innerHTML = '<p>No cat things found. Try "toy" or "food".</p>'; custom('search_zero_results', { search_term: q }); }
     },
     product: function () {
       var p = byId(new URLSearchParams(location.search).get('id')) || CAT[0];
       var ctx = {}; try { ctx = JSON.parse(sessionStorage.getItem('dc_list_ctx') || '{}'); } catch (e) {}
       document.title = p.name + ' | Digitl Cats';
       $('#pdp').innerHTML = '<div class="thumb big" style="background:' + p.color + '">' + p.emoji + '</div><div><p class="crumb"><a href="shop.html?category=' + p.category + '">' + p.category + '</a> / ' + p.category2 + '</p><h1>' + p.name + '</h1><p>' + p.desc + '</p><p class="variant">Variant: ' + p.variant + '</p><p class="price big">' + money(p.price) + '</p>' +
-        '<div class="qty"><label for="q">Qty</label> <input id="q" type="number" min="1" max="9" value="1"> <button id="pdp-add">Add to cart</button></div></div>';
+        '<div class="qty"><label for="q">Qty</label> <input id="q" type="number" min="1" max="9" value="1"> <button id="pdp-add">Add to cart</button> <button id="pdp-wish" class="ghost">♡ Wishlist</button></div></div>';
       ecom('view_item', { currency: C.CURRENCY, value: p.price, items: [item(p, ctx)] });
       $('#pdp-add').onclick = function () { addToCart(p.id, Math.max(1, +$('#q').value || 1), ctx); };
+      $('#pdp-wish').onclick = function () { addToWishlist(p.id, ctx); };
       renderList($('#related'), CAT.filter(function (x) { return x.category === p.category && x.id !== p.id; }), 'related_products', 'Related products');
     },
     cart: function () {
@@ -238,6 +271,31 @@
         custom('form_interaction', { form_name: 'contact', form_step: 'submit' });
         f.hidden = true; $('#contact-done').hidden = false;
       };
+    },
+    account: function () {
+      var logged = localStorage.getItem('dc_login') === '1';
+      $('#acc-out').hidden = logged; $('#acc-in').hidden = !logged;
+      $('#login-form').onsubmit = function (e) {
+        e.preventDefault();
+        localStorage.setItem('dc_login', '1');
+        dl.push({ event: 'login', method: 'email' });
+        $('#acc-out').hidden = true; $('#acc-in').hidden = false;
+      };
+      $('#signup-form').onsubmit = function (e) {
+        e.preventDefault();
+        localStorage.setItem('dc_login', '1');
+        var consent = {}; try { consent = JSON.parse(localStorage.getItem('dc_consent') || '{}'); } catch (x) {}
+        if (SC === 'pii_in_datalayer') {
+          // planted mistake: email sent as a plain event parameter
+          dl.push({ event: 'sign_up', method: 'email', user_email: 'test.cat@example.com' });
+        } else {
+          // Enhanced Conversions: user_data only with marketing consent, never as an event parameter
+          if (consent.marketing) { dl.push({ user_data: null }); dl.push({ user_data: { email: 'test.cat@example.com' } }); }
+          dl.push({ event: 'sign_up', method: 'email' });
+        }
+        $('#acc-out').hidden = true; $('#acc-in').hidden = false;
+      };
+      $('#logout').onclick = function () { localStorage.removeItem('dc_login'); dl.push({ event: 'logout' }); location.reload(); };
     },
     scenarios: function () {
       $('#current-scenario').textContent = SC || 'none (clean setup)';
