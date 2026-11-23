@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Test scenarios | Digitl Cats</title>
+<script src="assets/config.js"></script>
+<script src="assets/head.js" data-page-type="scenarios"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page-type="scenarios">
+<main class="wrap">
+<h1>Test scenarios</h1>
+<p>By default the site sends a clean, correct dataLayer. A test scenario plants one known tracking mistake for the rest of the browser session, so a skill can be checked against the right answer. Active now: <b id="current-scenario"></b></p>
+<table class="scen"><thead><tr><th>Scenario</th><th>Planted mistake</th><th>Turn on</th></tr></thead><tbody>
+<tr><td><code>missing_transaction_id</code></td><td>purchase is sent without <code>transaction_id</code></td><td><a href="index.html?scenario=missing_transaction_id">activate</a></td></tr>
+<tr><td><code>duplicate_purchase</code></td><td>purchase fires again every time the thank-you page is reloaded</td><td><a href="index.html?scenario=duplicate_purchase">activate</a></td></tr>
+<tr><td><code>price_as_string</code></td><td>item <code>price</code> sent as text with a comma ("24,99")</td><td><a href="index.html?scenario=price_as_string">activate</a></td></tr>
+<tr><td><code>missing_currency</code></td><td>add_to_cart sent without <code>currency</code></td><td><a href="index.html?scenario=missing_currency">activate</a></td></tr>
+<tr><td><code>no_ecommerce_reset</code></td><td>no <code>ecommerce: null</code> before ecommerce pushes</td><td><a href="index.html?scenario=no_ecommerce_reset">activate</a></td></tr>
+<tr><td><code>stale_custom_params</code></td><td>no reset of the nested object before custom event pushes</td><td><a href="index.html?scenario=stale_custom_params">activate</a></td></tr>
+<tr><td><code>consent_default_granted</code></td><td>Consent Mode defaults set to granted before the user decides</td><td><a href="index.html?scenario=consent_default_granted">activate</a></td></tr>
+</tbody></table>
+<p><a href="index.html?scenario=off">Turn all scenarios off</a></p>
+</main>
+<script src="assets/catalog.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

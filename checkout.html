@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Checkout | Digitl Cats</title>
+<script src="assets/config.js"></script>
+<script src="assets/head.js" data-page-type="checkout"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page-type="checkout">
+<main class="wrap">
+<h1>Checkout</h1>
+<div class="checkout">
+<form id="checkout-form">
+  <fieldset><legend>1. Shipping</legend>
+    <p class="note" style="margin-top:0">Test checkout: please don't type real personal data. The fields are not stored or sent anywhere.</p>
+    <label class="field">Name <input name="name" value="Test Cat" autocomplete="off"></label>
+    <label class="field">City <input name="city" value="Catstadt" autocomplete="off"></label>
+    <label class="field">Shipping method
+      <select name="shipping"><option value="standard">Standard (3-5 days) &euro;4,90</option><option value="express">Express (next day) &euro;9,90</option></select></label>
+    <button type="button" id="step-shipping">Continue to payment</button>
+  </fieldset>
+  <fieldset id="pay" hidden><legend>2. Payment</legend>
+    <label class="field">Payment method
+      <select name="payment"><option value="credit_card">Credit card</option><option value="paypal">PayPal</option><option value="invoice">Invoice</option></select></label>
+    <label class="field">Coupon (try MEOW10) <input name="coupon" autocomplete="off"></label>
+    <button>Place test order</button>
+  </fieldset>
+</form>
+<aside class="sum"><b>Order summary</b><div id="summary"></div></aside>
+</div>
+</main>
+<script src="assets/catalog.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
