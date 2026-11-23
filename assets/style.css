@@ -74,3 +74,6 @@ code { background:#f1eef8; padding:1px 5px; border-radius:5px; }
   .hero, .pdp, .checkout, .footer-row { grid-template-columns:1fr; }
   .hero .big-emoji { font-size:80px; }
 }
+.toolbar { display:flex; gap:18px; margin:-6px 0 18px; flex-wrap:wrap; }
+.toolbar select { padding:6px 10px; border:1px solid var(--line); border-radius:8px; margin-left:6px; }
+.card-foot button.wish { padding:8px 11px; }
