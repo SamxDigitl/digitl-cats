@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Account | Digitl Cats</title>
+<script src="assets/config.js"></script>
+<script src="assets/head.js" data-page-type="account"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page-type="account">
+<main class="wrap">
+<h1>Your account</h1>
+<div id="acc-out" class="checkout">
+<form id="login-form"><fieldset><legend>Log in</legend>
+<p class="note" style="margin-top:0">Test accounts only. Nothing is checked or stored except a "logged in" flag in your browser.</p>
+<label class="field">Email <input name="email" value="test.cat@example.com" autocomplete="off"></label>
+<label class="field">Password <input name="pw" type="password" value="meow" autocomplete="off"></label>
+<button>Log in</button></fieldset></form>
+<form id="signup-form"><fieldset><legend>Create account</legend>
+<label class="field">Email <input name="email" value="test.cat@example.com" autocomplete="off" readonly></label>
+<label class="field"><input type="checkbox" checked> Send me cat news</label>
+<button>Create test account</button></fieldset></form>
+</div>
+<div id="acc-in" hidden><p>You are logged in as <b>Test Cat</b>.</p><p><a href="shop.html">Go shopping</a> &middot; <a href="#" id="logout">Log out</a></p></div>
+</main>
+<script src="assets/catalog.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
