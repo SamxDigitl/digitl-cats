@@ -60,7 +60,7 @@
   var header = document.createElement('header');
   header.className = 'site-header';
   header.innerHTML =
-    (SC ? '<div class="scenario-bar">Test scenario active: <b>' + SC + '</b> &middot; <a href="?scenario=off">turn off</a></div>' : '') +
+    (SC && window.DC_DEBUG ? '<div class="scenario-bar">Test scenario active: <b>' + SC + '</b> &middot; <a href="?scenario=off">turn off</a></div>' : '') +
     '<div class="wrap header-row"><a class="logo" href="index.html" data-nav="logo">🐱 <span>Digitl Cats</span></a>' +
     '<nav class="main-nav">' + nav.map(function (n) { return '<a href="' + n[0] + '" data-nav="main_menu">' + n[1] + '</a>'; }).join('') + '</nav>' +
     '<form class="search" action="search.html"><input name="q" type="search" placeholder="Search cat things" aria-label="Search"></form>' +
