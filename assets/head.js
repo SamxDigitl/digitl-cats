@@ -16,6 +16,10 @@
     if (s === 'off' || s === 'none') sessionStorage.removeItem('dc_scenario');
     else if (s) sessionStorage.setItem('dc_scenario', s);
     window.DC_SCENARIO = sessionStorage.getItem('dc_scenario') || null;
+    // ?debug=1 shows the scenario bar in this tab (hidden by default so evals are blind)
+    var dbg = params.get('debug');
+    if (dbg === '1') sessionStorage.setItem('dc_debug', '1'); else if (dbg === '0') sessionStorage.removeItem('dc_debug');
+    window.DC_DEBUG = sessionStorage.getItem('dc_debug') === '1';
   } catch (e) { window.DC_SCENARIO = s || null; }
 
   // ---- consent defaults ----
@@ -50,7 +54,8 @@
       page_language: 'en',
       site_name: cfg.SITE_NAME,
       site_environment: cfg.ENV,
-      test_scenario: window.DC_SCENARIO || 'none',
+      // coded so the dataLayer does not reveal the planted mistake (codes s1 to s8 in scenario list order)
+      test_scenario: window.DC_SCENARIO ? ({missing_transaction_id:'s1',duplicate_purchase:'s2',price_as_string:'s3',missing_currency:'s4',no_ecommerce_reset:'s5',stale_custom_params:'s6',pii_in_datalayer:'s7',consent_default_granted:'s8'}[window.DC_SCENARIO] || 's0') : 'none',
       login_status: loggedIn ? 'logged_in' : 'logged_out'
     },
     consent_state: stored ? { analytics: !!stored.analytics, marketing: !!stored.marketing } : { analytics: false, marketing: false }
